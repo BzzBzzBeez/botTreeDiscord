@@ -1,4 +1,6 @@
+from random import randint
 from time import sleep
+from datetime import datetime
 import pyautogui
 import cv2
 
@@ -86,13 +88,18 @@ def goToTreeChannel():
 def collectApples():
     for coords in pyautogui.locateAllOnScreen('soup.png',confidence=0.9, grayscale=False): # Find soups
         if coords != None: 
-            pyautogui.moveTo(coords[0]+30, coords[1]+20, 0.2)
 
+            pyautogui.moveTo(coords[0]+30, coords[1]+20, 0.2)
             pyautogui.click()
             print("    Apple collected")
             sleep(.2)
 #-------------------------------
-#AJOUTER CLIQUE COIN + CHANNEL
+# ajout -> si passer un niveau apres watered, retirer2 avant de check les pommes
+
+now = datetime.now()
+
+today3am = now.replace(hour=3, minute=0)
+today8am = now.replace(hour=8, minute=0)
 
 print(pyautogui.position())
 print(pyautogui.size())
@@ -103,60 +110,69 @@ a = 1 # Modulo % 2 / Pair impair
 #goToTreeChannel()
 
 while True:
-    goToTreeChannel()
-    if isReady():
-        print("Ready ! : ")
-        rejeter() #IF REJETER NOT DELETED
-        rejeter2() # IF LVL UP
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Current Time =", current_time)
 
-        clickWater()
-        print("Clicking")
-        sleep(.5)
+    if now < today8am and now > today3am:
+        print("3h < Now < 8h")
 
-        if alreadyWatered():
-            rejeter()
-            print("  Rejecting...")
+        goToTreeChannel()
+        if isReady():
+            print("Ready ! : ")
+            rejeter() #IF REJETER NOT DELETED
+            rejeter2() # IF LVL UP
+
+            clickWater()
+            print(" Clicking")
+            rejeter() #IF REJETER NOT DELETED
+            rejeter2() # IF LVL UP
             sleep(.5)
 
-            if a % 2 == 0:
-                changeAccountTo1()
-                sleep(5)
-                print("  Account Switched to 1")
-                goToTreeChannel()
-                print("   Go to COIN")
+            if alreadyWatered():
+                rejeter()
+                print("  Rejecting...")
+                sleep(.5)
+
+                if a % 2 == 0:
+                    changeAccountTo1()
+                    sleep(5)
+                    print("  Account Switched to 1")
+                    goToTreeChannel()
+                    print("   Go to COIN")
+                else:
+                    changeAccountTo0()
+                    sleep(5)
+                    print("  Account Switched to 0")
+                    goToTreeChannel()
+                    print("  Go to COIN")
+                
+                a = a + 1 #Change accounts (a % 2)
+
             else:
-                changeAccountTo0()
+                print("[Watered]")
                 sleep(5)
-                print("  Account Switched to 0")
-                goToTreeChannel()
-                print("  Go to COIN")
-            
-            a = a + 1 #Change accounts (a % 2)
+                
+                print("  Apples checking")
+                collectApples()
+                
+                if a % 2 == 0:
+                    changeAccountTo1()
+                    sleep(5)
+                    print("  Account Switched to 1")
+                    goToTreeChannel()
+                    print("  Go to COIN")
+                else:
+                    changeAccountTo0()
+                    sleep(5)
+                    print("  Account Switched to 0")
+                    goToTreeChannel()
+                    print("  Go to COIN")
+                
+                a = a + 1 #Change accounts (a % 2)
 
         else:
-            print("[Watered]")
-            sleep(5)
-            
-            print("  Apples checking")
-            collectApples()
-            
-            if a % 2 == 0:
-                changeAccountTo1()
-                sleep(5)
-                print("  Account Switched to 1")
-                goToTreeChannel()
-                print("  Go to COIN")
-            else:
-                changeAccountTo0()
-                sleep(5)
-                print("  Account Switched to 0")
-                goToTreeChannel()
-                print("  Go to COIN")
-            
-            a = a + 1 #Change accounts (a % 2)
-
-    else:
-        i = i+1 #Print Iteration
-        print(str(i))
-    
+            i = i+1 #Print Iteration
+            print(str(i))
+        
     sleep(1)
